@@ -1,7 +1,18 @@
 import React from 'react';
 import { showFormattedDate } from '../utils';
+import NoteActionButton from './NoteActionButton';
 
-function NoteItem({ note, onDelete, onArchive }) {
+// Helper untuk highlight (tambahan, tidak ada TODO)
+const highlightText = (text, keyword) => {
+  if (!keyword || keyword.trim() === '') return text;
+  const regex = new RegExp(`(${keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+  const parts = text.split(regex);
+  return parts.map((part, index) =>
+    regex.test(part) ? <mark key={index}>{part}</mark> : part
+  );
+};
+
+function NoteItem({ note, onDelete, onArchive, keyword }) {
   return (
     <div
       className="note-item"
@@ -12,31 +23,31 @@ function NoteItem({ note, onDelete, onArchive }) {
         {/* TODO [Basic] tampilkan judul catatan menggunakan note.title */}
         {/* TODO [Advanced] sorot kata kunci pencarian dalam judul menggunakan elemen <mark>. */}
         <h3 className="note-item__title" data-testid="note-item-title">
-          Judul catatan
+          {highlightText(note.title, keyword)}
         </h3>
         {/* TODO [Basic] gunakan util showFormattedDate untuk menampilkan tanggal dibuat. */}
         <p className="note-item__date" data-testid="note-item-date">
-          {new Date().toISOString()}
+          {showFormattedDate(note.createdAt)}
         </p>
         {/* TODO [Basic] tampilkan isi catatan dari note.body */}
         {/* TODO [Advanced] sorot kata kunci pencarian dalam isi menggunakan elemen <mark>. */}
         <p className="note-item__body" data-testid="note-item-body">
-          Isi catatan muncul di sini.
+          {highlightText(note.body, keyword)}
         </p>
       </div>
       <div className="note-item__action" data-testid="note-item-action">
         {/* TODO [Skilled] pecah tombol aksi menjadi komponen terpisah bernama `NoteActionButton` dengan menerima props `variant` dan `onClick` */}
-        <button
-          className="note-item__delete-button"
-          type="button"
-          // TODO [Basic] panggil onDelete dengan id catatan.
-          onClick={() => console.warn('[TODO] Delete note', note.id)}
-          data-testid="note-item-delete-button"
-        >
-          Delete
-        </button>
-
+        <NoteActionButton
+          variant="delete"
+          onClick={() => onDelete(note.id)}
+          dataTestId="note-item-delete-button"
+        />
         {/* TODO [Advanced] implementasikan tombol arsip untuk fitur mengarsipkan catatan */}
+        <NoteActionButton
+          variant={note.archived ? 'unarchive' : 'archive'}
+          onClick={() => onArchive(note.id)}
+          dataTestId="note-item-archive-button"
+        />
       </div>
     </div>
   );
