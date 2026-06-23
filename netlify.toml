@@ -1,0 +1,4 @@
+[build]
+  base = "my-personal-notes"
+  command = "npm run build"
+  publish = "dist"
